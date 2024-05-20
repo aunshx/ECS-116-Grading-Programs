@@ -14,7 +14,6 @@ row_correct_points = 50
 
 # Load reference CSVs
 ref_csv1 = pd.read_csv(ref_csv1_path, low_memory=False)
-ref_csv2 = pd.read_csv(ref_csv2_path, low_memory=False)
 
 # Function to load and prepare student CSVs
 def load_student_csv(path):
@@ -60,7 +59,6 @@ for student_name in os.listdir(submissions_dir):
     student_folder = os.path.join(submissions_dir, student_name)
     if os.path.isdir(student_folder):
         student_csv1_path = os.path.join(student_folder, os.path.basename(ref_csv1_path))
-        student_csv2_path = os.path.join(student_folder, os.path.basename(ref_csv2_path))
 
         if os.path.exists(student_csv1_path):
             student_csv1 = load_student_csv(student_csv1_path)

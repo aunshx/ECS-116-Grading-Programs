@@ -80,13 +80,13 @@ for student_name in os.listdir(submissions_dir):
             student_csv1 = load_student_csv(student_csv1_path)
             score, percentage = custom_compare_aggs(ref_csv1, student_csv1, student_name)
             results_df = pd.concat([results_df, pd.DataFrame([{
-                "Student Name FS AGGS": student_name,
+                "Student Name": student_name,
                 "Score FS AGGS": score,
                 "Total Possible Points FS AGGS": total_points_possible_fs_aggs,
                 "Percentage FS AGGS": percentage
             }], index=[0])], ignore_index=True)
 
 # Save results to CSV
-results_path = 'results.csv'
+results_path = 'results/results_aggs.csv'
 results_df.to_csv(results_path, index=False)
 print("Results have been saved to:", results_path)
