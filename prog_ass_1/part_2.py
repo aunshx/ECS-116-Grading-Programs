@@ -4,13 +4,13 @@ import shutil
 # Path to the submissions directory
 submissions_dir = 'submissions'
 
+# Standard names for the CSV files
+standard_csv1 = 'gdp_energy_fs_aggs.csv'
+standard_csv2 = 'gdp_energy_with_fs_indicators.csv'
+
 def valid_file(file_name):
     """ Check if the file is a valid SQL or CSV file and not a macOS metadata file """
-    return (file_name.endswith(('.sql', '.csv')) and not file_name.startswith('._'))
-
-def sanitize_filename(file_name):
-    """ Remove leading and trailing spaces from filenames """
-    return file_name.strip()
+    return file_name.endswith(('.sql', '.csv')) and not file_name.startswith('._')
 
 def clean_directories(directory):
     """ Remove unwanted directories like _MACOSX """
@@ -22,40 +22,61 @@ def clean_directories(directory):
 
 def flatten_files(student_folder):
     """ Move .sql and .csv files to be only one level deep inside the student folder, ignoring metadata files """
-    clean_directories(student_folder)  # Clean up unwanted directories first
     for root, dirs, files in os.walk(student_folder, topdown=False):
         for file in files:
             if valid_file(file):
                 file_path = os.path.join(root, file)
-                sanitized_file = sanitize_filename(file)
-                new_path = os.path.join(student_folder, sanitized_file)
-                # Check if file is already at the correct location
+                new_path = os.path.join(student_folder, file)
                 if file_path != new_path:
                     shutil.move(file_path, new_path)
                     print(f"Moved {file} from {file_path} to {new_path}")
 
-def count_student_folders(directory):
-    """ Count and return the number of student folders in a given directory """
-    return len([name for name in os.listdir(directory) if os.path.isdir(os.path.join(directory, name))])
+def normalize_csv_names(student_folder):
+    """ Rename CSV files to standard names based on predefined prefixes, removing all whitespaces first. """
+    for file in os.listdir(student_folder):
+        file_path = os.path.join(student_folder, file)
+        # Sanitize the filename by removing whitespace
+        sanitized_file = ''.join(file.split())
+        sanitized_path = os.path.join(student_folder, sanitized_file)
+        
+        # Rename the file to remove spaces if needed
+        if file_path != sanitized_path:
+            shutil.move(file_path, sanitized_path)
+            print(f"Sanitized {file} to {sanitized_file}")
+            file = sanitized_file
+            file_path = sanitized_path
+        
+        parts = file.split('_')
+        
+        # Rebuild and rename based on specific rules
+        if file.startswith('gdp_energy_fs_aggs') and file.endswith('.csv'):
+            new_filename = '_'.join(parts[:4]) + '.csv'
+            new_path = os.path.join(student_folder, new_filename)
+            if file_path != new_path:
+                shutil.move(file_path, new_path)
+                print(f"Renamed {file} to {new_filename}")
+        
+        elif file.startswith('gdp_energy_with_fs_indicators') and file.endswith('.csv'):
+            new_filename = '_'.join(parts[:5]) + '.csv'
+            new_path = os.path.join(student_folder, new_filename)
+            if file_path != new_path:
+                shutil.move(file_path, new_path)
+                print(f"Renamed {file} to {new_filename}")
 
 def process_student_folders():
-    """ Process each student folder in the submissions directory and count them before and after processing """
+    """ Process each student folder in the submissions directory """
     if not os.path.exists(submissions_dir):
         os.makedirs(submissions_dir)
         print(f"Created directory: {submissions_dir}")
 
-    # Initial count of student folders
-    initial_count = count_student_folders(submissions_dir)
-    print(f"Initial count of student folders in submissions: {initial_count}")
-
     student_folders = [name for name in os.listdir(submissions_dir) if os.path.isdir(os.path.join(submissions_dir, name))]
     for student_name in student_folders:
         student_folder = os.path.join(submissions_dir, student_name)
+        clean_directories(student_folder)
         flatten_files(student_folder)
+        normalize_csv_names(student_folder)
 
-    # Final count of student folders
-    final_count = count_student_folders(submissions_dir)
-    print(f"Final count of student folders in submissions: {final_count}")
+    print("Processing complete.")
 
 # Run the processing of student folders
 process_student_folders()
