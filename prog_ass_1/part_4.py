@@ -6,12 +6,14 @@ ref_csv1_path = 'gdp_energy_fs_aggs.csv'
 ref_csv2_path = 'gdp_energy_with_fs_indicators.csv'
 
 # Directory containing student submissions
-submissions_dir = 'testing_data'
+submissions_dir = 'submissions'
 
-# Base Points 
-base_points = 394
+# ! Change this value after running part_3.py Total possible points for aggs 
 col_correct_points = 50
 row_correct_points = 50
+total_points_possible_fs_aggs = 788
+points_fs_aggs_base = 394
+
 
 # Load reference CSVs
 ref_csv1 = pd.read_csv(ref_csv1_path, low_memory=False)
@@ -26,45 +28,68 @@ def load_student_csv(path):
 
 # Function to compare two dataframes for "gdp_energy_fs_aggs.csv"
 def custom_compare_aggs(ref_df, student_df, student_name):
-    total_possible_points = base_points  # 10 points for column names, 10 points for row count
+    points = points_fs_aggs_base
 
     # Check column names
     if set(ref_df.columns) == set(student_df.columns):
-        total_possible_points += col_correct_points
+        points += col_correct_points
     else:
         print(f"Column names do not match. Missing columns: {set(ref_df.columns) - set(student_df.columns)} for {student_name}")
-        return total_possible_points, 0  # Return early if columns do not match
+        return points, (points / total_points_possible_fs_aggs * 100)  # Return early if columns do not match
 
     # Check number of rows
     if len(ref_df) == len(student_df):
-        total_possible_points += row_correct_points
+        points += row_correct_points
 
     # Compare each row for specified columns
     key_cols = ['area_code_m49', 'area']
     comparison_cols = [col for col in ref_df.columns if col not in key_cols]
 
-    points = 0
     for index, ref_row in ref_df.iterrows():
         if index < len(student_df):
             student_row = student_df.iloc[index]
             if ref_row[key_cols[0]] == student_row[key_cols[0]] and ref_row[key_cols[1]] == student_row[key_cols[1]]:
                 for col in comparison_cols:
                     if int(ref_row[col]) == int(student_row[col]):
-                        total_possible_points += 1
                         points += 1
 
-    return total_possible_points, points
+    percentage = (points / total_points_possible_fs_aggs * 100)
+    return points, percentage
 
+# Function to perform a basic comparison for "gdp_energy_with_fs_indicators.csv"
+def compare_other_csv(ref_df, student_df):
+    # Ensure both dataframes have the same columns in the same order
+    student_df = student_df.reindex(columns=ref_df.columns)
+    comparison = ref_df.eq(student_df)
+    match_count = comparison.all(axis=1).sum()
+    return match_count, len(ref_df)
 
+# Prepare results DataFrame
+results_df = pd.DataFrame(columns=[
+    "Student Folder Name", "Score", "Total Possible Points", "Percentage"
+])
+
+count = 0
 # Process each student's folder
 for student_name in os.listdir(submissions_dir):
     student_folder = os.path.join(submissions_dir, student_name)
+    count += 1
+    print(f"{student_folder} {count}")
     if os.path.isdir(student_folder):
         student_csv1_path = os.path.join(student_folder, os.path.basename(ref_csv1_path))
         student_csv2_path = os.path.join(student_folder, os.path.basename(ref_csv2_path))
 
         if os.path.exists(student_csv1_path):
             student_csv1 = load_student_csv(student_csv1_path)
-            total_possible_points, points = custom_compare_aggs(ref_csv1, student_csv1, student_name)
-            print(f"The total_points_possible_fs_aggs = {total_possible_points}, column base points = {col_correct_points}, row base points = {row_correct_points}, table correctness points = {points}, base points = {base_points}")
+            score, percentage = custom_compare_aggs(ref_csv1, student_csv1, student_name)
+            results_df = pd.concat([results_df, pd.DataFrame([{
+                "Student Folder Name": student_name,
+                "Score": score,
+                "Total Possible Points": total_points_possible_fs_aggs,
+                "Percentage": percentage
+            }], index=[0])], ignore_index=True)
 
+# Save results to CSV
+results_path = 'results.csv'
+results_df.to_csv(results_path, index=False)
+print("Results have been saved to:", results_path)
