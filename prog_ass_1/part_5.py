@@ -2,18 +2,17 @@ import os
 import pandas as pd
 
 # Paths to reference CSV files
-ref_csv1_path = 'gdp_energy_fs_aggs.csv'
+ref_csv2_path = 'gdp_energy_with_fs_indicators.csv'
 
 # Directory containing student submissions
 submissions_dir = 'testing_data'
 
 # Base Points 
-base_points = 394
-col_correct_points = 50
-row_correct_points = 50
+base_points = 8054
+col_correct_points = 1343
+row_correct_points = 1342
 
 # Load reference CSVs
-ref_csv1 = pd.read_csv(ref_csv1_path, low_memory=False)
 ref_csv2 = pd.read_csv(ref_csv2_path, low_memory=False)
 
 # Function to load and prepare student CSVs
@@ -39,7 +38,7 @@ def custom_compare_aggs(ref_df, student_df, student_name):
         total_possible_points += row_correct_points
 
     # Compare each row for specified columns
-    key_cols = ['area_code_m49', 'area']
+    key_cols = ['area_code_m49', 'area', 'year_code']
     comparison_cols = [col for col in ref_df.columns if col not in key_cols]
 
     points = 0
@@ -59,11 +58,10 @@ def custom_compare_aggs(ref_df, student_df, student_name):
 for student_name in os.listdir(submissions_dir):
     student_folder = os.path.join(submissions_dir, student_name)
     if os.path.isdir(student_folder):
-        student_csv1_path = os.path.join(student_folder, os.path.basename(ref_csv1_path))
         student_csv2_path = os.path.join(student_folder, os.path.basename(ref_csv2_path))
 
-        if os.path.exists(student_csv1_path):
-            student_csv1 = load_student_csv(student_csv1_path)
-            total_possible_points, points = custom_compare_aggs(ref_csv1, student_csv1, student_name)
-            print(f"The total_points_possible_fs_aggs = {total_possible_points}, column base points = {col_correct_points}, row base points = {row_correct_points}, table correctness points = {points}, base points = {base_points}")
+        if os.path.exists(student_csv2_path):
+            student_csv1 = load_student_csv(student_csv2_path)
+            total_possible_points, points = custom_compare_aggs(ref_csv2, student_csv1, student_name)
+            print(f"The total_points_possible_fs_aggs_indicators = {total_possible_points}, column base points = {col_correct_points}, row base points = {row_correct_points}, table correctness points = {points}, base points = {base_points}")
 

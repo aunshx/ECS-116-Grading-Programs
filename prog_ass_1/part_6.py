@@ -2,16 +2,16 @@ import os
 import pandas as pd
 
 # Paths to reference CSV files
-ref_csv1_path = 'gdp_energy_fs_aggs.csv'
+ref_csv1_path = 'gdp_energy_with_fs_indicators.csv'
 
 # Directory containing student submissions
 submissions_dir = 'submissions'
 
 # ! Change this value after running part_3.py Total possible points for aggs 
-col_correct_points = 50
-row_correct_points = 50
-total_points_possible_fs_aggs = 788
-points_fs_aggs_base = 394
+col_correct_points_indicators = 1343
+row_correct_points_indicators = 1342
+total_points_possible_fs_aggs_indicators = 16109
+points_fs_aggs_base_indicators = 8054
 
 
 # Load reference CSVs
@@ -26,21 +26,21 @@ def load_student_csv(path):
 
 # Function to compare two dataframes for "gdp_energy_fs_aggs.csv"
 def custom_compare_aggs(ref_df, student_df, student_name):
-    points = points_fs_aggs_base
+    points = points_fs_aggs_base_indicators
 
     # Check column names
     if set(ref_df.columns) == set(student_df.columns):
-        points += col_correct_points
+        points += col_correct_points_indicators
     else:
         print(f"Column names do not match. Missing columns: {set(ref_df.columns) - set(student_df.columns)} for {student_name}")
-        return points, (points / total_points_possible_fs_aggs * 100)  # Return early if columns do not match
+        return points, (points / total_points_possible_fs_aggs_indicators * 100)  # Return early if columns do not match
 
     # Check number of rows
     if len(ref_df) == len(student_df):
-        points += row_correct_points
+        points += row_correct_points_indicators
 
     # Compare each row for specified columns
-    key_cols = ['area_code_m49', 'area']
+    key_cols = ['area_code_m49', 'area', 'year_code']
     comparison_cols = [col for col in ref_df.columns if col not in key_cols]
 
     for index, ref_row in ref_df.iterrows():
@@ -51,7 +51,7 @@ def custom_compare_aggs(ref_df, student_df, student_name):
                     if int(ref_row[col]) == int(student_row[col]):
                         points += 1
 
-    percentage = (points / total_points_possible_fs_aggs * 100)
+    percentage = (points / total_points_possible_fs_aggs_indicators * 100)
     return points, percentage
 
 # Function to perform a basic comparison for "gdp_energy_with_fs_indicators.csv"
@@ -64,7 +64,7 @@ def compare_other_csv(ref_df, student_df):
 
 # Prepare results DataFrame
 results_df = pd.DataFrame(columns=[
-    "Student Name", "Score FS AGGS", "Total Possible Points FS AGGS", "Percentage FS AGGS"
+    "Student Name", "Score FS IND", "Total Possible Points FS IND", "Percentage FS IND"
 ])
 
 count = 0
@@ -80,13 +80,13 @@ for student_name in os.listdir(submissions_dir):
             student_csv1 = load_student_csv(student_csv1_path)
             score, percentage = custom_compare_aggs(ref_csv1, student_csv1, student_name)
             results_df = pd.concat([results_df, pd.DataFrame([{
-                "Student Name FS AGGS": student_name,
-                "Score FS AGGS": score,
-                "Total Possible Points FS AGGS": total_points_possible_fs_aggs,
-                "Percentage FS AGGS": percentage
+                "Student Name": student_name,
+                "Score FS IND": score,
+                "Total Possible Points FS IND": total_points_possible_fs_aggs_indicators,
+                "Percentage FS IND": percentage
             }], index=[0])], ignore_index=True)
 
 # Save results to CSV
-results_path = 'results.csv'
+results_path = 'results_ind.csv'
 results_df.to_csv(results_path, index=False)
 print("Results have been saved to:", results_path)
