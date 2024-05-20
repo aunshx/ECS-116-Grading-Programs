@@ -51,17 +51,24 @@ def normalize_csv_names(student_folder):
         # Rebuild and rename based on specific rules
         if file.startswith('gdp_energy_fs_aggs') and file.endswith('.csv'):
             new_filename = '_'.join(parts[:4]) + '.csv'
-            new_path = os.path.join(student_folder, new_filename)
+            parts = new_filename.split('.csv')
+            normalized_filename = '.csv'.join(filter(None, parts)) + ('.csv' if new_filename.endswith('.csv') else '')
+
+            print(f"{normalized_filename} FILE NAME")
+            new_path = os.path.join(student_folder, normalized_filename)
             if file_path != new_path:
                 shutil.move(file_path, new_path)
-                print(f"Renamed {file} to {new_filename}")
+                print(f"Renamed {file} to {normalized_filename}")
         
         elif file.startswith('gdp_energy_with_fs_indicators') and file.endswith('.csv'):
             new_filename = '_'.join(parts[:5]) + '.csv'
-            new_path = os.path.join(student_folder, new_filename)
+            parts = new_filename.split('.csv')
+            normalized_filename = '.csv'.join(filter(None, parts)) + ('.csv' if new_filename.endswith('.csv') else '')
+
+            new_path = os.path.join(student_folder, normalized_filename)
             if file_path != new_path:
                 shutil.move(file_path, new_path)
-                print(f"Renamed {file} to {new_filename}")
+                print(f"Renamed {file} to {normalized_filename}")
 
 def process_student_folders():
     """ Process each student folder in the submissions directory """
