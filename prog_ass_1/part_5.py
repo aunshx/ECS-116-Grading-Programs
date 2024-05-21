@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 # Paths to reference CSV files
-ref_csv2_path = 'gdp_energy_with_fs_indicators.csv'
+ref_csv2_path = 'base_data/gdp_energy_with_fs_indicators.csv'
 
 # Directory containing student submissions
 submissions_dir = 'testing_data'

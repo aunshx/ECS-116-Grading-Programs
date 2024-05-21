@@ -5,8 +5,8 @@ import shutil
 submissions_dir = 'submissions'
 
 # Standard names for the CSV files
-standard_csv1 = 'gdp_energy_fs_aggs.csv'
-standard_csv2 = 'gdp_energy_with_fs_indicators.csv'
+standard_csv1 = 'base_data/gdp_energy_fs_aggs.csv'
+standard_csv2 = 'base_data/gdp_energy_with_fs_indicators.csv'
 
 def valid_file(file_name):
     """ Check if the file is a valid SQL or CSV file and not a macOS metadata file """
@@ -54,7 +54,6 @@ def normalize_csv_names(student_folder):
             parts = new_filename.split('.csv')
             normalized_filename = '.csv'.join(filter(None, parts)) + ('.csv' if new_filename.endswith('.csv') else '')
 
-            print(f"{normalized_filename} FILE NAME")
             new_path = os.path.join(student_folder, normalized_filename)
             if file_path != new_path:
                 shutil.move(file_path, new_path)
