@@ -29,7 +29,7 @@ def calculate_third_column_score(df):
 
 def process_student_files(extract_path):
     results = []
-    submissions_path = extract_path  # Assuming this is the path to the extracted folder
+    submissions_path = extract_path
 
     for batch_folder in os.listdir(submissions_path):
         batch_path = os.path.join(submissions_path, batch_folder)
@@ -77,7 +77,6 @@ def process_student_files(extract_path):
 
     return results
 
-# Assuming the extracted path is directly the submissions folder
 extract_path = 'submissions'
 results = process_student_files(extract_path)
 results_df = pd.DataFrame(results, columns=['Student Name', 'Total Score', 'Total Third Column Score', 'Normalized Score'])
