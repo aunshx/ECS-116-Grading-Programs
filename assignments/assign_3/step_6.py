@@ -32,7 +32,7 @@ def calculate_score(total_length):
 
 def process_student_json_files(extract_path):
     results = []
-    submissions_path = extract_path  # Assuming this is the path to the extracted folder
+    submissions_path = extract_path 
 
     for batch_folder in os.listdir(submissions_path):
         batch_path = os.path.join(submissions_path, batch_folder)
@@ -57,14 +57,12 @@ def process_student_json_files(extract_path):
                         total_score = calculate_score(total_length)
                         results.append([student_folder, total_length, total_score])
                     else:
-                        # Student without a relevant JSON file
                         results.append([student_folder, 0, 0])
 
     return results
 
-# Assuming the extracted path is directly the submissions folder
 extract_path = 'submissions'
 results = process_student_json_files(extract_path)
-results_df = pd.DataFrame(results, columns=['Student Name', 'Total Length of Dates List', 'Total Score'])
+results_df = pd.DataFrame(results, columns=['Student Name', 'Total Length of Reviews List', 'Total Score'])
 output_csv_path = 'results/reviews_json.csv'
 results_df.to_csv(output_csv_path, index=False)

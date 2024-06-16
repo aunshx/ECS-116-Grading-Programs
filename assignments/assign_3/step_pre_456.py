@@ -1,38 +1,25 @@
-# Calculate correctness of listing_with_calendar_subset json
+# Check the correct total lengths from which to compare the results.
+# Select the length with the most occurrences. 
+
 import os
 import json
 import pandas as pd
 
-# Define the correct value and variation thresholds
-correct_value = 15695
-variation_thresholds = [0.05, 0.10, 0.15, 0.20]
-points_deducted = 0.25
-
-def calculate_total_dates_length(file_path):
+def calculate_total_lengths(file_path):
     total_length = 0
     with open(file_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
+        # Comment out whatever field you don't want to check according to the json file selected
         for obj in data:
             if 'dates_list' in obj:
                 total_length += len(obj['dates_list'])
+            if 'reviews' in obj:
+                total_length += len(obj['reviews'])
     return total_length
-
-def calculate_score(total_length):
-    if total_length == 0:
-        return 1
-    if total_length == correct_value:
-        return 4
-    variation = abs(total_length - correct_value) / correct_value
-    for threshold in variation_thresholds:
-        if variation <= threshold:
-            return 4 - (variation_thresholds.index(threshold) + 1) * points_deducted
-    if variation > 0.20:
-        return 2
-    return 1
 
 def process_student_json_files(extract_path):
     results = []
-    submissions_path = extract_path
+    submissions_path = extract_path 
 
     for batch_folder in os.listdir(submissions_path):
         batch_path = os.path.join(submissions_path, batch_folder)
@@ -43,26 +30,26 @@ def process_student_json_files(extract_path):
                 if os.path.isdir(student_path):
                     json_file = None
                     for file in os.listdir(student_path):
-                        if file in ['listings_with_calendar_subset_1000.json', 'listings_with_calendar_subset.json']:
+                        # Change the below file name according to what you want to check
+                        if file in ['listings_with_reviews_and_cal_subset_1000.json']:
                             json_file = os.path.join(student_path, file)
                             break
 
                     if json_file:
                         print(f"Processing file: {json_file} for student: {student_folder}")
                         try:
-                            total_length = calculate_total_dates_length(json_file)
+                            total_length = calculate_total_lengths(json_file)
                         except Exception as e:
                             print(f"Error processing file {json_file} for student {student_folder}: {e}")
-                            total_length = 1
-                        total_score = calculate_score(total_length)
-                        results.append([student_folder, total_length, total_score])
+                            total_length = 0
+                        results.append([student_folder, total_length])
                     else:
-                        results.append([student_folder, 0, 0])
+                        results.append([student_folder, 0])
 
     return results
 
 extract_path = 'submissions'
 results = process_student_json_files(extract_path)
-results_df = pd.DataFrame(results, columns=['Student Name', 'Total Length of Dates List', 'Total Score'])
-output_csv_path = 'results/calendar_json.csv'
+results_df = pd.DataFrame(results, columns=['Student Name', 'Total Length'])
+output_csv_path = 'results/max_length_json.csv'
 results_df.to_csv(output_csv_path, index=False)

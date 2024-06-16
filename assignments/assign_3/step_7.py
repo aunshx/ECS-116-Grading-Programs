@@ -1,10 +1,10 @@
-# Calculate correctness of listing_with_calendar_subset json
+# Calculate correctness of listings_with_reviews_and_cal_subset_1000.json
 import os
 import json
 import pandas as pd
 
 # Define the correct value and variation thresholds
-correct_value = 15695
+correct_value = 15966
 variation_thresholds = [0.05, 0.10, 0.15, 0.20]
 points_deducted = 0.25
 
@@ -15,6 +15,8 @@ def calculate_total_dates_length(file_path):
         for obj in data:
             if 'dates_list' in obj:
                 total_length += len(obj['dates_list'])
+            if 'reviews' in obj:
+                total_length += len(obj['reviews'])
     return total_length
 
 def calculate_score(total_length):
@@ -43,7 +45,7 @@ def process_student_json_files(extract_path):
                 if os.path.isdir(student_path):
                     json_file = None
                     for file in os.listdir(student_path):
-                        if file in ['listings_with_calendar_subset_1000.json', 'listings_with_calendar_subset.json']:
+                        if file in ['listings_with_reviews_and_cal_subset_1000.json']:
                             json_file = os.path.join(student_path, file)
                             break
 
@@ -63,6 +65,6 @@ def process_student_json_files(extract_path):
 
 extract_path = 'submissions'
 results = process_student_json_files(extract_path)
-results_df = pd.DataFrame(results, columns=['Student Name', 'Total Length of Dates List', 'Total Score'])
-output_csv_path = 'results/calendar_json.csv'
+results_df = pd.DataFrame(results, columns=['Student Name', 'Total Length of Combined List', 'Total Score'])
+output_csv_path = 'results/caldate_json.csv'
 results_df.to_csv(output_csv_path, index=False)
